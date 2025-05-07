@@ -1,0 +1,19 @@
+package com.example.demo.repository;
+
+import com.example.demo.model.Brand;
+import com.example.demo.model.Car;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface CarRepository extends JpaRepository<Car, Long> {
+    Optional<Car> findCarByCarName(String name);
+    List<Car> findCarByCarBrandId(Long carBrandId);
+    List<Car> findCarByMfg(String msg);
+    List<Car> findCarByPrice(Long price);
+    List<Car> findCarByOwner(String owner);
+    List<Car> findCarByPriceGreaterThan(Long price);
+    List<Car> findCarByPriceLessThan(Long price);
+}
