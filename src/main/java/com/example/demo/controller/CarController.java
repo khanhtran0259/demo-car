@@ -16,8 +16,8 @@ import java.util.List;
 public class CarController {
     private final CarService carService;
 
-    @GetMapping("/special")
-    public ResponseEntity<List<Car>> getFilteredCars() {
+    @GetMapping("/specific")
+    public ResponseEntity<List<Car>> getSpecificCars() {
         List<Car> filteredCars = carService.getSpecificCars();
         return ResponseEntity.ok(filteredCars);
     }
