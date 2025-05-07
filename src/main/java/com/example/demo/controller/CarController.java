@@ -2,8 +2,10 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Car;
 import com.example.demo.service.CarService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,20 +40,43 @@ public class CarController {
     }
 
     @PostMapping
-    public ResponseEntity<Car> createCar(@RequestBody Car car){
-        return ResponseEntity.ok(carService.createCar(car));
+    public ResponseEntity<?> createCar(@RequestBody Car car){
+        try {
+            return ResponseEntity.ok(carService.createCar(car));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error: " + e.getMessage());
+        }
     }
 
+
     @PutMapping("/{id}")
-    public ResponseEntity<Car> updateCar(@PathVariable Long id, @RequestBody Car car){
-        return ResponseEntity.ok(carService.updateCar(id, car));
+    public ResponseEntity<?> updateCar(@PathVariable Long id, @RequestBody Car car){
+        try {
+            return ResponseEntity.ok(carService.updateCar(id, car));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(MessageFormat.format("Car with id {0} not found", id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCar(@PathVariable Long id){
-        carService.deleteCar(id);
-        return ResponseEntity.ok(MessageFormat.format("Car with id {0} deleted successfully", id));
+        try {
+            carService.deleteCar(id);
+            return ResponseEntity.ok(MessageFormat.format("Car with id {0} deleted successfully", id));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(MessageFormat.format("Car with id {0} not found", id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Có lỗi xảy ra: " + e.getMessage());
+        }
     }
+
 
 
 }
