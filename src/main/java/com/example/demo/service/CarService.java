@@ -34,16 +34,15 @@ public class CarService {
         for (Car car : carGreaterThan10M) {
             for (Brand brand : brandStartWithS) {
                 if (car.getCarBrandId().equals(brand.getId())) {
-                    result.add(car); // Nếu xe thỏa mãn, thêm vào danh sách kết quả
+                    result.add(car);
                 }
             }
         }
 
-        // Trường hợp 2: Xe có giá < 10 triệu và thuộc loại BUS
         for (Car car : carLessThan10M) {
             for (Brand brand : brandWithBusType) {
                 if (car.getCarBrandId().equals(brand.getId())) {
-                    result.add(car); // Nếu xe thỏa mãn, thêm vào danh sách kết quả
+                    result.add(car);
                 }
             }
         }
