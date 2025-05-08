@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.DTO.CarRequest;
+import com.example.demo.DTO.CarResponse;
 import com.example.demo.exception.ResourceAlreadyExistsException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Car;
@@ -22,13 +23,12 @@ public class CarController {
     private final CarService carService;
 
     @GetMapping("/specific")
-    public ResponseEntity<List<Car>> getSpecificCars() {
-        List<Car> filteredCars = carService.getSpecificCars();
-        return ResponseEntity.ok(filteredCars);
+    public ResponseEntity<List<CarResponse>> getSpecificCars() {
+        return ResponseEntity.ok(carService.getSpecificCars());
     }
 
     @GetMapping
-    public ResponseEntity<List<Car>> getAllCars(
+    public ResponseEntity<List<CarResponse>> getAllCars(
             @RequestParam(required = false) Long carBrandId,
             @RequestParam(required = false) String msg,
             @RequestParam(required = false) Long price,
@@ -37,7 +37,7 @@ public class CarController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Car> getCarById(@PathVariable Long id){
+    public ResponseEntity<CarResponse> getCarById(@PathVariable Long id){
         return ResponseEntity.ok(carService.getCarById(id));
     }
 

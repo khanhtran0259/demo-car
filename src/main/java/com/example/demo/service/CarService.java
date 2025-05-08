@@ -1,10 +1,11 @@
 package com.example.demo.service;
 
 import com.example.demo.DTO.CarRequest;
+import com.example.demo.DTO.CarResponse;
 import com.example.demo.exception.ResourceAlreadyExistsException;
 import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.mapper.CarMapper;
 import com.example.demo.model.Brand;
-import com.example.demo.model.BrandType;
 import com.example.demo.model.Car;
 import com.example.demo.repository.BrandRepository;
 import com.example.demo.repository.CarRepository;
@@ -15,8 +16,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,23 +28,26 @@ public class CarService {
     private CarRepository carRepository;
     @Autowired
     private BrandRepository brandRepository;
+    private final CarMapper carMapper;
 
-    public List<Car> getSpecificCars(){
-        return carRepository.findAll(CarSpecification.specialCondition());
+    public List<CarResponse> getSpecificCars(){
+        List<Car> cars = carRepository.findAll(CarSpecification.specialCondition());
+        return carMapper.toCarResponseList(cars);
     }
-    public List<Car> getAllCars(Long carBrandId, String msg, Long price, String owner) {
+    public List<CarResponse> getAllCars(Long carBrandId, String msg, Long price, String owner) {
         Specification<Car> spec = Specification
                 .where(hasBrandId(carBrandId))
                 .and(hasMfg(msg))
                 .and(hasPrice(price))
                 .and(hasOwner(owner));
-
-        return carRepository.findAll(spec);
+        List<Car> cars = carRepository.findAll(spec);
+        return carMapper.toCarResponseList(cars);
 
     }
-    public Car getCarById(Long id){
-        return carRepository.findById(id).orElseThrow(()
-                -> new ResourceNotFoundException("Car not found with id: " + id));
+    public CarResponse getCarById(Long id){
+        Car car = carRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Car not found with id: " + id));
+        return carMapper.toResponse(car);
     }
 
     public Car createCar(CarRequest carRequest) {
