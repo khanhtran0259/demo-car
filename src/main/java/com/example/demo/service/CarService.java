@@ -10,6 +10,7 @@ import com.example.demo.model.Car;
 import com.example.demo.repository.BrandRepository;
 import com.example.demo.repository.CarRepository;
 import com.example.demo.specification.CarSpecification;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,10 +25,8 @@ import static com.example.demo.specification.CarSpecification.*;
 @Service
 @RequiredArgsConstructor
 public class CarService {
-    @Autowired
-    private CarRepository carRepository;
-    @Autowired
-    private BrandRepository brandRepository;
+    private final CarRepository carRepository;
+    private final BrandRepository brandRepository;
     private final CarMapper carMapper;
 
     public List<CarResponse> getSpecificCars(){
@@ -49,8 +48,8 @@ public class CarService {
                 .orElseThrow(() -> new ResourceNotFoundException("Car not found with id: " + id));
         return carMapper.toResponse(car);
     }
-
-    public Car createCar(CarRequest carRequest) {
+    @Transactional
+    public CarResponse createCar(CarRequest carRequest) {
         if(carRepository.findCarByCarName(carRequest.getCarName()).isPresent())
             throw new ResourceAlreadyExistsException("Car name already exists");
 
@@ -64,11 +63,12 @@ public class CarService {
         car.setOwner(carRequest.getOwner());
         car.setBrand(brand);
         car.setCreatedAt(Instant.now());
-
-        return carRepository.save(car);
+        Car saved = carRepository.save(car);
+        return carMapper.toResponse(saved);
     }
 
-    public Car updateCar(Long id, CarRequest carUpdated) {
+    @Transactional
+    public CarResponse updateCar(Long id, CarRequest carUpdated) {
         Car car = carRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Car not found"));
 
@@ -88,9 +88,11 @@ public class CarService {
         car.setPrice(carUpdated.getPrice());
         car.setOwner(carUpdated.getOwner());
         car.setBrand(brand);
-        return carRepository.save(car);
+        Car saved = carRepository.save(car);
+        return carMapper.toResponse(saved);
     }
 
+    @Transactional
     public void deleteCar(Long id){
         Car car =carRepository.findById(id).orElseThrow(()
                 -> new ResourceNotFoundException("Car not found with id: " + id));
