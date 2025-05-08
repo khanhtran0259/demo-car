@@ -20,7 +20,9 @@ public class Car {
     private String mfg;
     private Long price;
     private String owner;
-    private Long carBrandId;
+    @ManyToOne
+    @JoinColumn(name = "car_brand_id", referencedColumnName = "id")
+    private Brand brand;
     @Temporal(TemporalType.TIMESTAMP)
     private Instant createdAt;
 

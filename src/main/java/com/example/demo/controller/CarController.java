@@ -1,5 +1,8 @@
 package com.example.demo.controller;
 
+import com.example.demo.DTO.CarRequest;
+import com.example.demo.exception.ResourceAlreadyExistsException;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Car;
 import com.example.demo.service.CarService;
 import jakarta.persistence.EntityNotFoundException;
@@ -30,7 +33,6 @@ public class CarController {
             @RequestParam(required = false) String msg,
             @RequestParam(required = false) Long price,
             @RequestParam(required = false) String owner){
-        List<Car> cars = carService.getAllCars(carBrandId, msg, price, owner);
         return ResponseEntity.ok(carService.getAllCars(carBrandId, msg, price, owner));
     }
 
@@ -40,9 +42,9 @@ public class CarController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createCar(@RequestBody Car car){
+    public ResponseEntity<?> createCar(@RequestBody CarRequest carRequest) {
         try {
-            return ResponseEntity.ok(carService.createCar(car));
+            return ResponseEntity.ok(carService.createCar(carRequest));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error: " + e.getMessage());
@@ -51,15 +53,18 @@ public class CarController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCar(@PathVariable Long id, @RequestBody Car car){
+    public ResponseEntity<?> updateCar(@PathVariable Long id, @RequestBody CarRequest carRequest) {
         try {
-            return ResponseEntity.ok(carService.updateCar(id, car));
-        } catch (EntityNotFoundException e) {
+            return ResponseEntity.ok(carService.updateCar(id, carRequest));
+        } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(MessageFormat.format("Car with id {0} not found", id));
+                    .body("Error: " + e.getMessage());
+        } catch (ResourceAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Error: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error " + e.getMessage());
+                    .body("Error: " + e.getMessage());
         }
     }
 

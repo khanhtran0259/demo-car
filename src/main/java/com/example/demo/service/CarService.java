@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.DTO.CarRequest;
 import com.example.demo.exception.ResourceAlreadyExistsException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Brand;
@@ -7,8 +8,10 @@ import com.example.demo.model.BrandType;
 import com.example.demo.model.Car;
 import com.example.demo.repository.BrandRepository;
 import com.example.demo.repository.CarRepository;
+import com.example.demo.specification.CarSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -16,6 +19,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static com.example.demo.specification.CarSpecification.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,81 +31,61 @@ public class CarService {
     private BrandRepository brandRepository;
 
     public List<Car> getSpecificCars(){
-        List<Car> carGreaterThan10M = carRepository.findCarByPriceGreaterThan(10000000L);
-        List<Car> carLessThan10M = carRepository.findCarByPriceLessThan(10000000L);
-        List<Brand> brandStartWithS = brandRepository.findBrandByNameStartingWith("S");
-        List<Brand> brandWithBusType = brandRepository.findBrandByCarType(BrandType.BUS);
-        List<Car> result = new ArrayList<>();
-        for (Car car : carGreaterThan10M) {
-            for (Brand brand : brandStartWithS) {
-                if (car.getCarBrandId().equals(brand.getId())) {
-                    result.add(car);
-                }
-            }
-        }
-
-        for (Car car : carLessThan10M) {
-            for (Brand brand : brandWithBusType) {
-                if (car.getCarBrandId().equals(brand.getId())) {
-                    result.add(car);
-                }
-            }
-        }
-
-        return result;
+        return carRepository.findAll(CarSpecification.specialCondition());
     }
-    public List<Car> getAllCars(Long carBrandId, String msg, Long price, String owner){
-        if (carBrandId == null && msg == null && price == null && owner == null) {
-            return carRepository.findAll();
-        }
-        if (carBrandId != null) {
-            return carRepository.findCarByCarBrandId(carBrandId);
-        }
-        if (msg != null) {
-            return carRepository.findCarByMfg(msg);
-        }
+    public List<Car> getAllCars(Long carBrandId, String msg, Long price, String owner) {
+        Specification<Car> spec = Specification
+                .where(hasBrandId(carBrandId))
+                .and(hasMfg(msg))
+                .and(hasPrice(price))
+                .and(hasOwner(owner));
 
-        if (price != null) {
-            return carRepository.findCarByPrice(price);
-        }
+        return carRepository.findAll(spec);
 
-        if (owner != null) {
-            return carRepository.findCarByOwner(owner);
-        }
-        return carRepository.findAll();
     }
     public Car getCarById(Long id){
         return carRepository.findById(id).orElseThrow(()
                 -> new ResourceNotFoundException("Car not found with id: " + id));
     }
 
-    public Car createCar(Car car){
-        if(carRepository.findCarByCarName(car.getCarName()).isPresent())
+    public Car createCar(CarRequest carRequest) {
+        if(carRepository.findCarByCarName(carRequest.getCarName()).isPresent())
             throw new ResourceAlreadyExistsException("Car name already exists");
 
-        if(!brandRepository.findById(car.getCarBrandId()).isPresent())
-            throw  new ResourceNotFoundException("Brand Id not exists");
-        if (car.getCreatedAt() == null) {
-            car.setCreatedAt(Instant.now());
-        }
+        Brand brand = brandRepository.findById(carRequest.getCarBrandId())
+                .orElseThrow(() -> new ResourceNotFoundException("Brand Id not exists"));
+
+        Car car = new Car();
+        car.setCarName(carRequest.getCarName());
+        car.setMfg(carRequest.getMfg());
+        car.setPrice(carRequest.getPrice());
+        car.setOwner(carRequest.getOwner());
+        car.setBrand(brand);
+        car.setCreatedAt(Instant.now());
+
         return carRepository.save(car);
     }
 
-    public Car updateCar(Long id, Car carUpdated){
-        Car car = carRepository.findById(id).orElseThrow(()
-        -> new ResourceNotFoundException("Car not found"));
-        Optional<Car> existCar =carRepository.findCarByCarName(carUpdated.getCarName());
-        if(existCar.isPresent() && !existCar.get().getId().equals(id))
+    public Car updateCar(Long id, CarRequest carUpdated) {
+        Car car = carRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Car not found"));
+
+        // Kiểm tra tên xe đã tồn tại cho xe khác
+        Optional<Car> existCar = carRepository.findCarByCarName(carUpdated.getCarName());
+        if (existCar.isPresent() && !existCar.get().getId().equals(id)) {
             throw new ResourceAlreadyExistsException("Car name already exists");
-        Optional<Brand> existBrand = brandRepository.findById(car.getCarBrandId());
-        if(existBrand.isPresent() && !existBrand.get().getId().equals(carUpdated.getCarBrandId()))
-            throw new ResourceNotFoundException("Brand id not exist");
+        }
+
+        // Kiểm tra brand có tồn tại không
+        Brand brand = brandRepository.findById(carUpdated.getCarBrandId())
+                .orElseThrow(() -> new ResourceNotFoundException("Brand id does not exist"));
+
+        // Cập nhật thông tin
         car.setCarName(carUpdated.getCarName());
         car.setMfg(carUpdated.getMfg());
         car.setPrice(carUpdated.getPrice());
         car.setOwner(carUpdated.getOwner());
-        car.setCarBrandId(carUpdated.getCarBrandId());
-        car.setCreatedAt(carUpdated.getCreatedAt());
+        car.setBrand(brand);
         return carRepository.save(car);
     }
 

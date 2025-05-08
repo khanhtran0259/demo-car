@@ -9,6 +9,4 @@ import java.util.Optional;
 
 public interface BrandRepository extends JpaRepository<Brand, Long> {
     Optional<Brand> findBrandByName(String name);
-    List<Brand> findBrandByNameStartingWith(String s);
-    List<Brand> findBrandByCarType(BrandType carType);
 }
