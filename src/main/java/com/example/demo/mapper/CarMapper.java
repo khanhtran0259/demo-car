@@ -16,7 +16,7 @@ public class CarMapper {
         response.setPrice(car.getPrice());
         response.setOwner(car.getOwner());
         response.setBrandName(car.getBrand().getName());
-        response.setBrandType(car.getBrand().getCarType());
+        response.setBrandType(car.getBrand().getCarType().name());
         response.setCreatedAt(car.getCreatedAt());
         return response;
     }

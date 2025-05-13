@@ -12,7 +12,7 @@ public class CarResponse {
     private Long price;
     private String owner;
     private String brandName;
-    private BrandType brandType;
+    private String brandType;
     private Instant createdAt;
 
 }
