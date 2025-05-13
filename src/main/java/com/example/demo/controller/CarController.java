@@ -64,7 +64,7 @@ public class CarController {
                     .body("Error: " + e.getMessage());
         }
     }
-    @PutMapping("/{id}/restore")
+    @PutMapping("/restore/{id}")
     public ResponseEntity<CarResponse> restoreCar(@PathVariable Long id, @RequestParam boolean isAdmin) throws AccessDeniedException {
         CarFilterRequest filterRequest = new CarFilterRequest();
         filterRequest.setIsAdmin(isAdmin);  // Chỉ admin mới có thể khôi phục xe
