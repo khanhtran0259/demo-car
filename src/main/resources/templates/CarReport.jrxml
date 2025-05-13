@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
+                                  http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="CarReport" pageWidth="595" pageHeight="842" columnWidth="555"
+              leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="12345678-1234-1234-1234-123456789abc">
+
+    <!-- Fields -->
+    <field name="id" class="java.lang.Long"/>
+    <field name="carName" class="java.lang.String"/>
+    <field name="mfg" class="java.lang.String"/>
+    <field name="price" class="java.lang.Long"/>
+    <field name="owner" class="java.lang.String"/>
+    <field name="brandName" class="java.lang.String"/>
+    <field name="brandType" class="java.lang.String"/>
+    <field name="createdAt" class="java.time.Instant"/>
+
+    <!-- Title -->
+    <title>
+        <band height="50">
+            <staticText>
+                <reportElement x="0" y="0" width="555" height="30"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="18" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Car Report]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <!-- Column Header -->
+    <columnHeader>
+        <band height="30">
+            <staticText><reportElement x="0"   y="0" width="50" height="20"/><text><![CDATA[ID]]></text></staticText>
+            <staticText><reportElement x="50"  y="0" width="90" height="20"/><text><![CDATA[Car Name]]></text></staticText>
+            <staticText><reportElement x="140" y="0" width="70" height="20"/><text><![CDATA[MFG]]></text></staticText>
+            <staticText><reportElement x="210" y="0" width="70" height="20"/><text><![CDATA[Price]]></text></staticText>
+            <staticText><reportElement x="280" y="0" width="80" height="20"/><text><![CDATA[Owner]]></text></staticText>
+            <staticText><reportElement x="360" y="0" width="70" height="20"/><text><![CDATA[Brand]]></text></staticText>
+            <staticText><reportElement x="430" y="0" width="60" height="20"/><text><![CDATA[Type]]></text></staticText>
+            <staticText><reportElement x="490" y="0" width="65" height="20"/><text><![CDATA[Created At]]></text></staticText>
+        </band>
+    </columnHeader>
+
+    <!-- Detail Band -->
+    <detail>
+        <band height="20">
+            <textField><reportElement x="0"   y="0" width="50" height="20"/><textFieldExpression><![CDATA[$F{id}]]></textFieldExpression></textField>
+            <textField><reportElement x="50"  y="0" width="90" height="20"/><textFieldExpression><![CDATA[$F{carName}]]></textFieldExpression></textField>
+            <textField><reportElement x="140" y="0" width="70" height="20"/><textFieldExpression><![CDATA[$F{mfg}]]></textFieldExpression></textField>
+            <textField><reportElement x="210" y="0" width="70" height="20"/><textFieldExpression><![CDATA[$F{price}]]></textFieldExpression></textField>
+            <textField><reportElement x="280" y="0" width="80" height="20"/><textFieldExpression><![CDATA[$F{owner}]]></textFieldExpression></textField>
+            <textField><reportElement x="360" y="0" width="70" height="20"/><textFieldExpression><![CDATA[$F{brandName}]]></textFieldExpression></textField>
+            <textField><reportElement x="430" y="0" width="60" height="20"/><textFieldExpression><![CDATA[$F{brandType}.toString()]]></textFieldExpression></textField>
+            <textField pattern="yyyy-MM-dd HH:mm">
+                <reportElement x="490" y="0" width="65" height="20"/>
+                <textFieldExpression><![CDATA[new java.util.Date($F{createdAt}.toEpochMilli())]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+</jasperReport>
