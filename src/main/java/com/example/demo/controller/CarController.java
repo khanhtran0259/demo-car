@@ -1,18 +1,18 @@
 package com.example.demo.controller;
 
-import com.example.demo.DTO.CarRequest;
-import com.example.demo.DTO.CarResponse;
+import com.example.demo.DTO.filter.CarFilterRequest;
+import com.example.demo.DTO.request.CarRequest;
+import com.example.demo.DTO.response.CarResponse;
 import com.example.demo.exception.ResourceAlreadyExistsException;
 import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.model.Car;
-import com.example.demo.service.CarService;
+import com.example.demo.service.implement.CarServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.text.MessageFormat;
 import java.util.List;
 
@@ -20,31 +20,27 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/cars")
 public class CarController {
-    private final CarService carService;
+    private final CarServiceImpl carServiceImpl;
 
     @GetMapping("/specific")
     public ResponseEntity<List<CarResponse>> getSpecificCars() {
-        return ResponseEntity.ok(carService.getSpecificCars());
+        return ResponseEntity.ok(carServiceImpl.getSpecificCars());
     }
 
     @GetMapping
-    public ResponseEntity<List<CarResponse>> getAllCars(
-            @RequestParam(required = false) Long carBrandId,
-            @RequestParam(required = false) String msg,
-            @RequestParam(required = false) Long price,
-            @RequestParam(required = false) String owner){
-        return ResponseEntity.ok(carService.getAllCars(carBrandId, msg, price, owner));
+    public ResponseEntity<List<CarResponse>> getCars(@ModelAttribute CarFilterRequest request) {
+        return ResponseEntity.ok(carServiceImpl.getAllCars(request));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CarResponse> getCarById(@PathVariable Long id){
-        return ResponseEntity.ok(carService.getCarById(id));
+    public ResponseEntity<CarResponse> getCarById(@PathVariable Long id, @ModelAttribute CarFilterRequest request) throws AccessDeniedException {
+        return ResponseEntity.ok(carServiceImpl.getCarById(id, request));
     }
 
     @PostMapping
-    public ResponseEntity<?> createCar(@RequestBody CarRequest carRequest) {
+    public ResponseEntity<?> createCar(@RequestBody CarRequest carRequest, @ModelAttribute CarFilterRequest request) throws AccessDeniedException {
         try {
-            return ResponseEntity.ok(carService.createCar(carRequest));
+            return ResponseEntity.ok(carServiceImpl.createCar(carRequest, request));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error: " + e.getMessage());
@@ -53,9 +49,9 @@ public class CarController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCar(@PathVariable Long id, @RequestBody CarRequest carRequest) {
+    public ResponseEntity<?> updateCar(@PathVariable Long id, @RequestBody CarRequest carRequest, @ModelAttribute CarFilterRequest filterRequest) throws AccessDeniedException {
         try {
-            return ResponseEntity.ok(carService.updateCar(id, carRequest));
+            return ResponseEntity.ok(carServiceImpl.updateCar(id, carRequest, filterRequest));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Error: " + e.getMessage());
@@ -67,18 +63,29 @@ public class CarController {
                     .body("Error: " + e.getMessage());
         }
     }
+    @PutMapping("/{id}/restore")
+    public ResponseEntity<CarResponse> restoreCar(@PathVariable Long id, @RequestParam boolean isAdmin) throws AccessDeniedException {
+        CarFilterRequest filterRequest = new CarFilterRequest();
+        filterRequest.setIsAdmin(isAdmin);  // Chỉ admin mới có thể khôi phục xe
+
+        CarResponse restoredCar = carServiceImpl.restoreCar(id, filterRequest);
+        return ResponseEntity.ok(restoredCar);
+    }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteCar(@PathVariable Long id){
+    public ResponseEntity<String> deleteCar(
+            @PathVariable Long id,
+            @RequestParam(name = "isAdmin") boolean isAdmin,
+            @RequestParam(name = "owner") String owner){
         try {
-            carService.deleteCar(id);
+            carServiceImpl.deleteCar(id, isAdmin, owner);
             return ResponseEntity.ok(MessageFormat.format("Car with id {0} deleted successfully", id));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(MessageFormat.format("Car with id {0} not found", id));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Có lỗi xảy ra: " + e.getMessage());
+                    .body("Error: " + e.getMessage());
         }
     }
 

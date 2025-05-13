@@ -1,4 +1,4 @@
-package com.example.demo.DTO;
+package com.example.demo.DTO.response;
 
 import com.example.demo.model.BrandType;
 import lombok.Data;

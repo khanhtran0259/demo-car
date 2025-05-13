@@ -19,6 +19,7 @@ public class Brand {
     private String name;
     @Enumerated(EnumType.STRING)
     private BrandType carType;
+    private boolean isDeleted = false;
 
 
 }

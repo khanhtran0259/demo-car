@@ -13,4 +13,9 @@ public interface CarRepository extends JpaRepository<Car, Long>, JpaSpecificatio
     Optional<Car> findCarByCarName(String name);
 
 
+    List<Car> findAllByBrand(Brand brand);
+
+    List<Car> findAllByIsDeletedByAdminFalse();
+
+    List<Car> findAllByOwnerAndIsDeletedByUserFalse(String owner);
 }

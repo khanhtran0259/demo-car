@@ -1,6 +1,6 @@
 package com.example.demo.mapper;
 
-import com.example.demo.DTO.CarResponse;
+import com.example.demo.DTO.response.CarResponse;
 import com.example.demo.model.Car;
 import org.springframework.stereotype.Component;
 

@@ -9,4 +9,12 @@ import java.util.Optional;
 
 public interface BrandRepository extends JpaRepository<Brand, Long> {
     Optional<Brand> findBrandByName(String name);
+
+    List<Brand> findAllByIsDeletedFalse();
+
+    Optional<Brand> findByIdAndIsDeletedFalse(Long id);
+
+    List<Brand> findByNameAndIsDeletedFalse(String brandName);
+
+    List<Brand> findByNameIgnoreCaseAndIsDeletedTrue(String brandName);
 }

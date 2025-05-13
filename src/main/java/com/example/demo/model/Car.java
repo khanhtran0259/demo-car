@@ -24,6 +24,8 @@ public class Car {
     @JoinColumn(name = "car_brand_id", referencedColumnName = "id")
     private Brand brand;
     @Temporal(TemporalType.TIMESTAMP)
+    private boolean isDeletedByAdmin = false;
+    private boolean isDeletedByUser = false;
     private Instant createdAt;
 
 }
