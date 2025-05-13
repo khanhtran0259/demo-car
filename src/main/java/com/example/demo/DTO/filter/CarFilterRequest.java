@@ -10,7 +10,7 @@ public class CarFilterRequest {
     private String owner;
     private Boolean isAdmin;
 
-    private int page = 1;
+    private int page = 0;
     private int size = 10;
 
 }

@@ -14,6 +14,9 @@ import com.example.demo.service.CarService;
 import com.example.demo.specification.CarSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -38,17 +41,18 @@ public class CarServiceImpl implements CarService {
     }
 
     @Override
-    public List<CarResponse> getAllCars(CarFilterRequest request) {
-        List<Car> cars;
+    public Page<CarResponse> getAllCars(CarFilterRequest request) {
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+        Page<Car> cars;
         if (Boolean.TRUE.equals(request.getIsAdmin())) {
-            cars = carRepository.findAllByIsDeletedByAdminFalse();
+            cars = carRepository.findAllByIsDeletedByAdminFalse(pageable);
         } else {
             if (request.getOwner() == null) {
                 throw new IllegalArgumentException("Owner is required for non-admin access");
             }
-            cars = carRepository.findAllByOwnerAndIsDeletedByUserFalse(request.getOwner());
+            cars = carRepository.findAllByOwnerAndIsDeletedByUserFalse(request.getOwner(), pageable);
         }
-        return carMapper.toCarResponseList(cars);
+        return cars.map(carMapper::toResponse);
     }
 
     @Override

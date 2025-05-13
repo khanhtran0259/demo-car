@@ -8,6 +8,7 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.service.implement.CarServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class CarController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CarResponse>> getCars(@ModelAttribute CarFilterRequest request) {
+    public ResponseEntity<Page<CarResponse>> getCars(@ModelAttribute CarFilterRequest request) {
         return ResponseEntity.ok(carServiceImpl.getAllCars(request));
     }
 

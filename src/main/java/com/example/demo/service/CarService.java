@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.DTO.filter.CarFilterRequest;
 import com.example.demo.DTO.request.CarRequest;
 import com.example.demo.DTO.response.CarResponse;
+import org.springframework.data.domain.Page;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 public interface CarService {
     List<CarResponse> getSpecificCars();
 
-    List<CarResponse> getAllCars(CarFilterRequest request);
+    Page<CarResponse> getAllCars(CarFilterRequest request);
 
     CarResponse getCarById(Long id, CarFilterRequest request) throws AccessDeniedException;
 
